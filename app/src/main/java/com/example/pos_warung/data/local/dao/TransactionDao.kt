@@ -30,6 +30,13 @@ interface TransactionDao {
     fun getTransactionWithItemsById(transactionId: Long): Flow<TransactionWithItems?>
 
     @Transaction
+    @Query("SELECT * FROM transactions WHERE transaction_date BETWEEN :startDate AND :endDate ORDER BY transaction_date DESC")
+    fun getTransactionsWithItemsByDateRange(
+        startDate: String,
+        endDate: String
+    ): Flow<List<TransactionWithItems>>
+
+    @Transaction
     suspend fun insertTransactionWithItems(
         transaction: TransactionEntity,
         items: List<TransactionItemEntity>
@@ -42,6 +49,7 @@ interface TransactionDao {
 
     @Insert
     suspend fun insertTransaction(transaction: TransactionEntity): Long
+
     @Insert
     suspend fun insertAllItems(items: List<TransactionItemEntity>)
 

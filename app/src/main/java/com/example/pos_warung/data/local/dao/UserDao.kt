@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface UserDao {
     @Query("SELECT * FROM users WHERE username = :username")
-    suspend fun getUserByUsername(username: String): UserEntity?
+    suspend fun getUserByUsernameOnce(username: String): UserEntity?
+
+    @Query("SELECT * FROM users WHERE username = :username")
+    fun getUserByUsernameFlow(username: String): Flow<UserEntity?>
 
     @Query("SELECT * FROM users WHERE id = :id")
     fun getUserById(id: Long) : Flow<UserEntity?>
