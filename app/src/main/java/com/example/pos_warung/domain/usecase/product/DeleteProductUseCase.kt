@@ -1,5 +1,6 @@
 package com.example.pos_warung.domain.usecase.product
 
+import com.example.pos_warung.domain.common.Result
 import com.example.pos_warung.domain.model.Product
 import com.example.pos_warung.domain.repository.ProductRepository
 import javax.inject.Inject

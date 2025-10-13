@@ -63,8 +63,8 @@ class TransactionRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getTransactionById(transactionId: Long): Flow<Transaction> {
-        return transactionDao.getTransactionWithItemsById(transactionId).map { it!!.toTransaction() }
+    override fun getTransactionById(transactionId: Long): Flow<Transaction?> {
+        return transactionDao.getTransactionWithItemsById(transactionId).map { it?.toTransaction() }
     }
 
     override fun getTransactionByDates(

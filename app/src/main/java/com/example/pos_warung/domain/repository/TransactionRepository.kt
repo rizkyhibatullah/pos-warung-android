@@ -7,6 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface TransactionRepository {
     suspend fun addTransaction(transaction: Transaction): Result<Long>
     fun getTransactions(): Flow<List<Transaction>>
-    fun getTransactionById(transactionId: Long): Flow<Transaction>
+    fun getTransactionById(transactionId: Long): Flow<Transaction?>
     fun getTransactionByDates(startDate: String, endDate: String): Flow<List<Transaction>>
 }
