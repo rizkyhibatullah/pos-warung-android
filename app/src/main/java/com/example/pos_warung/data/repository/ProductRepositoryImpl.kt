@@ -6,6 +6,9 @@ import com.example.pos_warung.domain.common.Result
 import com.example.pos_warung.domain.model.Product
 import com.example.pos_warung.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
+//import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -35,12 +38,20 @@ class ProductRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun getProducts(): Flow<List<Product>> {
-        return productDao.getAllProducts().map { entities ->
-            entities.map { it.toProduct() }
+    override fun getProducts(): Flow<Result<List<Product>>> {
+        return flow {
+            try {
+                productDao.getAllProducts().collect { entities ->
+                    val products = entities.map { it.toProduct() }
+
+                    emit(Result.Success(products))
+                }
+            } catch (e: Exception) {
+
+                emit(Result.Error(message = "Gagal memuat produk", exception = e))
+            }
         }
     }
-
     override fun getProductById(productId: Long): Flow<Product?> {
         return productDao.getProductById(productId).map { it?.toProduct() }
     }
