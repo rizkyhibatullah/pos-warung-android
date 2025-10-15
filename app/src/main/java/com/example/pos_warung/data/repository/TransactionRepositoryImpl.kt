@@ -78,12 +78,19 @@ class TransactionRepositoryImpl @Inject constructor(
         return transactionDao.getTransactionWithItemsById(transactionId).map { it?.toTransaction() }
     }
 
-    override fun getTransactionByDates(
-        startDate: String,
-        endDate: String
-    ): Flow<List<Transaction>> {
-        return transactionDao.getTransactionsWithItemsByDateRange(startDate, endDate).map { entities ->
-            entities.map { it.toTransaction() }
+    override fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<Result<List<Transaction>>> {
+        return flow {
+            try {
+                transactionDao.getTransactionsWithItemsByDateRange(startDate, endDate).collect { transactionWithItemsList ->
+                    // Ubah List<TransactionWithItems> menjadi List<Transaction>
+                    val transactions = transactionWithItemsList.map { it.toTransaction() }
+                    // Emit sebagai Result.Success
+                    emit(Result.Success(transactions))
+                }
+            } catch (e: Exception) {
+                // Tangkap error dan emit sebagai Result.Error
+                emit(Result.Error(message = "Gagal menghasilkan laporan", exception = e))
+            }
         }
     }
 }
