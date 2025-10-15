@@ -17,33 +17,36 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val logout: Logout
+    private val logoutUseCase: Logout
 ) : ViewModel() {
+
     private val _loginState = MutableStateFlow<UiState<User>>(UiState.Idle)
     val loginState: StateFlow<UiState<User>> = _loginState.asStateFlow()
 
     fun login(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
-            _loginState.value = UiState.Error(message = "Username atau password tidak boleh kosong")
+            _loginState.value = UiState.Error("Username dan password tidak boleh kosong")
             return
         }
-        viewModelScope.launch()
-        {
+
+        viewModelScope.launch {
             _loginState.value = UiState.Loading
             when (val result = loginUseCase(username, password)) {
                 is Result.Success -> _loginState.value = UiState.Success(result.data)
-                is Result.Error -> _loginState.value = UiState.Error(result.message ?: "Gagal melakukan login")
+                is Result.Error -> _loginState.value = UiState.Error(result.message ?: "Login gagal")
                 else -> {}
             }
         }
     }
 
-    fun logout(){
+    fun logout() {
         viewModelScope.launch {
-            when(val result = logout()){
-                is Result.Success -> {_loginState.value = UiState.Idle}
+            when (val result = logoutUseCase()) {
+                is Result.Success -> {
+                    _loginState.value = UiState.Idle
+                }
                 is Result.Error -> {
-                    _loginState.value = println("Gagal melakukan logout")
+                    println("Logout failed: ${result.message}")
                 }
                 else -> {}
             }
@@ -53,7 +56,4 @@ class AuthViewModel @Inject constructor(
     fun onLoginHandled() {
         _loginState.value = UiState.Idle
     }
-
-
-
 }
