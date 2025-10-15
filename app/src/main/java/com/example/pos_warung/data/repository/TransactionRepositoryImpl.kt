@@ -8,6 +8,7 @@ import com.example.pos_warung.domain.model.Transaction
 import com.example.pos_warung.domain.model.TransactionItem
 import com.example.pos_warung.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -57,9 +58,19 @@ class TransactionRepositoryImpl @Inject constructor(
             }
         }
 
-    override fun getTransactions(): Flow<List<Transaction>> {
-        return transactionDao.getAllTransactionsWithItems().map { entities ->
-            entities.map { it.toTransaction() }
+    override fun getTransactions(): Flow<Result<List<Transaction>>> {
+        return flow {
+            try {
+                transactionDao.getAllTransactionsWithItems().collect { transactionWithItemsList ->
+                    // Ubah List<TransactionWithItems> menjadi List<Transaction>
+                    val transactions = transactionWithItemsList.map { it.toTransaction() }
+                    // Emit sebagai Result.Success
+                    emit(Result.Success(transactions))
+                }
+            } catch (e: Exception) {
+                // Tangkap error dan emit sebagai Result.Error
+                emit(Result.Error(message = "Gagal memuat transaksi", exception = e))
+            }
         }
     }
 
