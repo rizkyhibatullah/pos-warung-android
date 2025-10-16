@@ -32,8 +32,8 @@ interface TransactionDao {
     @Transaction
     @Query("SELECT * FROM transactions WHERE transaction_date BETWEEN :startDate AND :endDate ORDER BY transaction_date DESC")
     fun getTransactionsWithItemsByDateRange(
-        startDate: String,
-        endDate: String
+        startDate: Long,
+        endDate: Long
     ): Flow<List<TransactionWithItems>>
 
     @Transaction
