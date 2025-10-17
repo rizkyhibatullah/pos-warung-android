@@ -52,8 +52,22 @@ class ProductRepositoryImpl @Inject constructor(
             }
         }
     }
-    override fun getProductById(productId: Long): Flow<Product?> {
-        return productDao.getProductById(productId).map { it?.toProduct() }
+    override fun getProductById(productId: Long): Flow<Result<Product>> {
+        return flow {
+            emit(Result.Loading) // Emit state Loading
+            try {
+                productDao.getProductById(productId).collect { entity ->
+                    if (entity != null) {
+                        emit(Result.Success(entity.toProduct()))
+                    } else {
+                        emit(Result.Error(message = "Produk dengan ID $productId tidak ditemukan"))
+                    }
+                }
+            } catch (e: Exception) {
+                emit(Result.Error(message = "Gagal memuat produk", exception = e))
+            }
+        }
+
     }
 
     override suspend fun addProduct(product: Product): Result<Unit> {
